@@ -221,7 +221,7 @@ def generate(current_quarter):
         'European Union - 27 countries (from 2020)': 'European Union'                                           
     })
 
-    # print(GVA_Chained['Industry'].unique().tolist())
+    print(GVA_Chained['Industry'].unique().tolist())
 
     Hours_Jobs_URL = 'https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/namq_10_a10_e/1.0/*.*.*.*.*.*?c[freq]=Q&c[unit]=THS_HW,THS_JOB&c[nace_r2]=TOTAL,A,B-E,C,F,G-I,J,K,L,M_N,O-Q,R-U&c[s_adj]=SCA&c[na_item]=EMP_DC&c[geo]=EU27_2020,EA,EA21,EA20,EA19,EA12,BE,BG,CZ,DK,DE,EE,IE,EL,ES,FR,HR,IT,CY,LV,LT,LU,HU,MT,NL,AT,PL,PT,RO,SI,SK,FI,SE,IS,NO,CH,UK,ME,MK,RS&c[TIME_PERIOD]=2026-Q1,2025-Q4,2025-Q3,2025-Q2,2025-Q1,2024-Q4,2024-Q3,2024-Q2,2024-Q1,2023-Q4,2023-Q3,2023-Q2,2023-Q1,2022-Q4,2022-Q3,2022-Q2,2022-Q1,2021-Q4,2021-Q3,2021-Q2,2021-Q1,2020-Q4,2020-Q3,2020-Q2,2020-Q1&compress=false&format=csvdata&formatVersion=1.0&lang=en&labels=label_only'
 
