@@ -1,8 +1,8 @@
-"Figure 4: In January to March 2026, output per worker using RTI data was 4.2% above its 2019 (average) level and is growing faster than comparable LFS derived estimates.",""
-"Output per worker using Labour Force Survey (LFS), output per worker using Real Time Information (RTI), UK, Quarter 3 (July to Sept) 2014 to Quarter 1 (Jan to Mar) 2026 ",""
+"Figure 1: Output per worker growth using RTI data was 4.6% above its 2019 average and is growing faster than comparable LFS-derived estimates",""
+"Output per worker using Labour Force Survey (LFS), output per worker using Real Time Information (RTI), UK, index Quarter 3 2014 equals 100, Quarter 3 (July to Sept) 2014 to Quarter 2 (Apr to Jun) 2026   ",""
 "",""
-"Notes","1. RTI worker estimates are supplemented by LFS self-employed data, minus working proprietors (for example, self-employed individuals who are sole directors of their own limited business). 
-2. No adjustment is made for those that are employed but not part of Pay As You Earn (PAYE). 
+"Notes","1. Real Time Information (RTI) worker estimates are supplemented by Labour Force Survey (LFS) self-employed data, minus working proprietors (that is, self-employed individuals who are sole directors of their own limited business).  
+2. No adjustment is made for those that are employed but not part of Pay As You Earn (PAYE).  
 3. Any individual who has a main job outside of the PAYE scheme and a second job on the PAYE scheme will be categorised as only having a main job. "
 "Unit","Index Quarter 3 2014 = 100 "
 "",""
@@ -38,7 +38,7 @@
 "Q3 2021","104.2","104.7"
 "Q4 2021","105.4","105.4"
 "Q1 2022","106.2","105.5"
-"Q2 2022","106.0","105.5"
+"Q2 2022","106.1","105.5"
 "Q3 2022","106.3","104.9"
 "Q4 2022","106.1","104.8"
 "Q1 2023","105.5","104.2"
@@ -46,11 +46,12 @@
 "Q3 2023","105.3","103.6"
 "Q4 2023","104.9","102.9"
 "Q1 2024","105.8","103.6"
-"Q2 2024","106.0","104.0"
+"Q2 2024","106.1","104.0"
 "Q3 2024","105.3","104.2"
 "Q4 2024","105.5","104.5"
 "Q1 2025","105.7","105.4"
 "Q2 2025","105.2","105.9"
-"Q3 2025","105.4","106.3"
-"Q4 2025","105.4","106.6"
-"Q1 2026","105.6","107.0"
+"Q3 2025","105.3","106.2"
+"Q4 2025","105.2","106.5"
+"Q1 2026","105.5","106.8"
+"Q2 2026","105.6","107.4"

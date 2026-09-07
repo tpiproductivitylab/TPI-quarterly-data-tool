@@ -1,5 +1,65 @@
 # Script made for making visualisation for different datasets
 
+MOBILE_STACK_JS = """
+(function() {
+    var breakpoint = 600;
+    var origLayout = JSON.parse(JSON.stringify(gd.layout)); // snapshot original domains/annotations
+    var xaxes = Object.keys(origLayout).filter(function(k){ return /^xaxis\\d*$/.test(k); });
+    var yaxes = Object.keys(origLayout).filter(function(k){ return /^yaxis\\d*$/.test(k); });
+
+    function applyLayout() {
+        var isMobile = window.innerWidth < breakpoint;
+
+        if (xaxes.length < 2) {
+            // Single-panel figure: just tighten margins/fonts, don't touch domains
+            Plotly.relayout(gd, {
+                'margin.l': isMobile ? 60 : origLayout.margin.l,
+                'margin.r': isMobile ? 30 : origLayout.margin.r,
+                'font.size': isMobile ? 10 : 12
+            });
+            return;
+        }
+
+        // Two-panel (subplot) figure
+        var update = {};
+        if (isMobile) {
+            update[xaxes[0] + '.domain'] = [0, 1];
+            update[xaxes[1] + '.domain'] = [0, 1];
+            update[yaxes[0] + '.domain'] = [0.55, 1];
+            update[yaxes[1] + '.domain'] = [0, 0.45];
+            update['height'] = Math.max(origLayout.height || 500, 900);
+
+            if (origLayout.annotations && origLayout.annotations.length >= 2) {
+                var anns = origLayout.annotations.map(function(a, i) {
+                    var copy = Object.assign({}, a);
+                    if (i === 0) { copy.x = 0.5; copy.y = 1.02; copy.xanchor = 'center'; }
+                    if (i === 1) { copy.x = 0.5; copy.y = 0.47; copy.xanchor = 'center'; }
+                    return copy;
+                });
+                update['annotations'] = anns;
+            }
+            if (origLayout.legend) {
+                update['legend.x'] = 0;
+                update['legend.y'] = 1.1;
+                update['legend.orientation'] = 'h';
+            }
+        } else {
+            // Restore desktop domains/annotations/height exactly as generated
+            update[xaxes[0] + '.domain'] = origLayout[xaxes[0]].domain;
+            update[xaxes[1] + '.domain'] = origLayout[xaxes[1]].domain;
+            update[yaxes[0] + '.domain'] = origLayout[yaxes[0]].domain;
+            update[yaxes[1] + '.domain'] = origLayout[yaxes[1]].domain;
+            update['height'] = origLayout.height;
+            if (origLayout.annotations) update['annotations'] = origLayout.annotations;
+        }
+        Plotly.relayout(gd, update);
+    }
+
+    applyLayout();
+    window.addEventListener('resize', applyLayout);
+})();
+"""
+
 import pandas as pd
 import plotly_express as px
 import plotly.graph_objects as go
@@ -403,72 +463,90 @@ def New_GDP(data, provisional_countries=None):
 
     return fig
 
+def write_mobile_html(fig, path, post_script=None, **kwargs):
+    html_str = fig.to_html(
+        include_plotlyjs="cdn",
+        full_html=True,
+        config={"responsive": True, "displayModeBar": False},
+        post_script=post_script,
+        **kwargs
+    )
+    # Inject viewport meta tag right after <head>
+    html_str = html_str.replace(
+        "<head>",
+        '<head><meta name="viewport" content="width=device-width, initial-scale=1">',
+        1
+    )
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(html_str)
 
 # Imports - the figure number is the figure number from the ONS blog
 # Figure 6
 OPH_Industries = pd.read_excel('../src/New-release/Figure6.xlsx', skiprows=11, usecols=[0,1, 2], names=["Industry", "Contribution", "Size"])
 # Figure 7
-OPH_Breakdown = pd.read_excel('../src/New-release/Figure7.xlsx', skiprows=5, usecols=[0,1,2,3])
+OPH_Breakdown = pd.read_excel('../src/New-release/Figure7.xlsx', skiprows=6, usecols=[0,1,2,3])
 # Figure 4
 OPW_Comparison = pd.read_csv('../src/New-release/Figure4.csv', skiprows=7, usecols=[0,1,2], names=["Quarter", "LFS Output per hour worked", "RTI + SE (exc working proprietors) Output per hour worked"])
 # Figure 5
 OPH_Comparison = pd.read_csv('../src/New-release/Figure5.csv', skiprows=7, usecols=[0,1,2], names=["Quarter", "LFS Output per hour worked", "RTI + SE (exc working proprietors) Output per hour worked"])
-# Figure 1
-Flash_Estimate_OPH = pd.read_csv('../src/New-release/Figure1.csv', skiprows=7, usecols=[0,1,2,3], names=["Quarter", "Gross Value Added", "Hours Worked", "Output Per Hour"])
+# # Figure 1
+# Flash_Estimate_OPH = pd.read_csv('../src/New-release/Figure1.csv', skiprows=7, usecols=[0,1,2,3], names=["Quarter", "Gross Value Added", "Hours Worked", "Output Per Hour"])
 
-# Figure 1
-Flash_Estimate_OPH["Quarter"] = Flash_Estimate_OPH["Quarter"].str.replace(r"(Q\d) (\d{4})", r"\2 \1", regex=True)
-base_value = Flash_Estimate_OPH.loc[Flash_Estimate_OPH["Quarter"] == "2007 Q1", "Gross Value Added"].iloc[0]
-Flash_Estimate_OPH["Gross Value Added"] = (Flash_Estimate_OPH["Gross Value Added"] / base_value) * 100
+# Figure 1 - no figure 1 this release (Q2 2026)
+# Flash_Estimate_OPH["Quarter"] = Flash_Estimate_OPH["Quarter"].str.replace(r"(Q\d) (\d{4})", r"\2 \1", regex=True)
+# base_value = Flash_Estimate_OPH.loc[Flash_Estimate_OPH["Quarter"] == "2007 Q1", "Gross Value Added"].iloc[0]
+# Flash_Estimate_OPH["Gross Value Added"] = (Flash_Estimate_OPH["Gross Value Added"] / base_value) * 100
 
-base_value = Flash_Estimate_OPH.loc[Flash_Estimate_OPH["Quarter"] == "2007 Q1", "Hours Worked"].iloc[0]
-Flash_Estimate_OPH["Hours Worked"] = (Flash_Estimate_OPH["Hours Worked"] / base_value) * 100
+# base_value = Flash_Estimate_OPH.loc[Flash_Estimate_OPH["Quarter"] == "2007 Q1", "Hours Worked"].iloc[0]
+# Flash_Estimate_OPH["Hours Worked"] = (Flash_Estimate_OPH["Hours Worked"] / base_value) * 100
 
-base_value = Flash_Estimate_OPH.loc[Flash_Estimate_OPH["Quarter"] == "2007 Q1", "Output Per Hour"].iloc[0]
-Flash_Estimate_OPH["Output Per Hour"] = (Flash_Estimate_OPH["Output Per Hour"] / base_value) * 100
+# base_value = Flash_Estimate_OPH.loc[Flash_Estimate_OPH["Quarter"] == "2007 Q1", "Output Per Hour"].iloc[0]
+# Flash_Estimate_OPH["Output Per Hour"] = (Flash_Estimate_OPH["Output Per Hour"] / base_value) * 100
 
-Flash_Estimate_OPH["Quarter"] = Flash_Estimate_OPH["Quarter"].apply(quarter_to_numeric)
-Flash_Estimate_OPH = Flash_Estimate_OPH[(Flash_Estimate_OPH['Quarter'] >= 2007) & (Flash_Estimate_OPH['Quarter'] <= 2026)]
-Flash_Estimate_OPH["Quarter"] = Flash_Estimate_OPH["Quarter"].apply(numeric_to_quarter)
-fig = line_graph(Flash_Estimate_OPH, "", "", 1)
-#fig.show()
-fig.write_image("../out/figures-images/Figure 1 - 2026 Flash Estimate.png", width=1200, height=800, scale=2)
-fig.write_html("../out/figures-html/2026-Q1-Figure-1.html")
-
-# Figure 2
-fig = horizontal_bar(OPH_Industries, "")
-fig.update_layout(hovermode=False)
-fig.write_image("../out/figures-images/Figure 2 - Contribution to OPH by Industry.png", width=1200, height=800, scale=2)
-fig.write_html("../out/figures-html/2026-Q1-Figure-2.html")
-#fig.show()
+# Flash_Estimate_OPH["Quarter"] = Flash_Estimate_OPH["Quarter"].apply(quarter_to_numeric)
+# Flash_Estimate_OPH = Flash_Estimate_OPH[(Flash_Estimate_OPH['Quarter'] >= 2007) & (Flash_Estimate_OPH['Quarter'] <= 2026)]
+# Flash_Estimate_OPH["Quarter"] = Flash_Estimate_OPH["Quarter"].apply(numeric_to_quarter)
+# fig = line_graph(Flash_Estimate_OPH, "", "", 1)
+# #fig.show()
+# fig.write_image("../out/figures-images/Figure 1 - 2026 Flash Estimate.png", width=1200, height=800, scale=2)
+# fig.write_html("../out/figures-html/2026-Q1-Figure-1.html")
 
 # Figure 3
-fig = OPH(OPH_Breakdown, "")
-fig.write_image("../out/figures-images/Figure 3 - OPH GVA HW.png", width=1200, height=800, scale=2)
-fig.write_html("../out/figures-html/2026-Q1-Figure-3.html")
+fig = horizontal_bar(OPH_Industries, "")
+fig.update_layout(hovermode=False)
+fig.write_image("../out/figures-images/Figure 3 - Contribution to OPH by Industry.png", width=1200, height=800, scale=2)
+# fig.write_html("../out/figures-html/2026-Q2-Figure-3.html", config={"responsive": True}, post_script=MOBILE_STACK_JS,)
+write_mobile_html(fig, "../out/figures-html/2026-Q2-Figure-3-2.html")
 #fig.show()
 
 # Figure 4
+fig = OPH(OPH_Breakdown, "")
+fig.write_image("../out/figures-images/Figure 4 - OPH GVA HW.png", width=1200, height=800, scale=2)
+# fig.write_html("../out/figures-html/2026-Q2-Figure-4.html", config={"responsive": True}, post_script=MOBILE_STACK_JS,)
+write_mobile_html(fig, "../out/figures-html/2026-Q2-Figure-4-2.html")
+#fig.show()
+
+# Figure 1
 OPW_Comparison["Quarter"] = OPW_Comparison["Quarter"].str.replace(r"(Q\d) (\d{4})", r"\2 \1", regex=True)
 OPW_Comparison['Quarter'] = OPW_Comparison['Quarter'].apply(quarter_to_numeric)
 OPW_Difference = OPW_Comparison.copy()
 OPW_Difference['difference'] = OPW_Difference['LFS Output per hour worked'] - OPW_Difference['RTI + SE (exc working proprietors) Output per hour worked']
-print(OPW_Difference)
 
 preCovidOPW = OPW_Comparison.copy()
 preCovidOPW = preCovidOPW[(preCovidOPW['Quarter'] >= 2014.75) & (preCovidOPW['Quarter'] <= 2019)]
 preCovidOPW['Quarter'] = preCovidOPW['Quarter'].apply(numeric_to_quarter)
 
 postCovidOPW = OPW_Comparison.copy()
-postCovidOPW = postCovidOPW[(postCovidOPW['Quarter'] >= 2021.25) & (postCovidOPW['Quarter'] <= 2026)]
+postCovidOPW = postCovidOPW[(postCovidOPW['Quarter'] >= 2021.25) & (postCovidOPW['Quarter'] <= 2026.25)]
 postCovidOPW['Quarter'] = postCovidOPW['Quarter'].apply(numeric_to_quarter)
 
 fig = double_qoq(preCovidOPW, postCovidOPW, "", "legend", "Output per worker pre-COVID", "Output per worker post-COVID")
-fig.write_image("../out/figures-images/Figure 4 - OPW - LFS vs RTI - double.png", width=1200, height=800, scale=2)
-fig.write_html("../out/figures-html/2026-Q1-Figure-4.html")
+fig.write_image("../out/figures-images/Figure 1 - OPW - LFS vs RTI - double.png", width=1200, height=800, scale=2)
+# fig.write_html("../out/figures-html/2026-Q2-Figure-1.html", config={"responsive": True}, post_script=MOBILE_STACK_JS,)
+write_mobile_html(fig, "../out/figures-html/2026-Q2-Figure-1-2.html")
 #fig.show()
 
-# Figure 5
+# Figure 2
 OPH_Comparison["Quarter"] = OPH_Comparison["Quarter"].str.replace(r"(Q\d) (\d{4})", r"\2 \1", regex=True)
 OPH_Comparison['Quarter'] = OPH_Comparison['Quarter'].apply(quarter_to_numeric)
 
@@ -477,22 +555,23 @@ preCovidOPH = preCovidOPH[(preCovidOPH['Quarter'] >= 2014.75) & (preCovidOPH['Qu
 preCovidOPH['Quarter'] = preCovidOPH['Quarter'].apply(numeric_to_quarter)
 
 postCovidOPH = OPH_Comparison.copy()
-postCovidOPH = postCovidOPH[(postCovidOPH['Quarter'] >= 2021.25) & (postCovidOPH['Quarter'] <= 2026)]
+postCovidOPH = postCovidOPH[(postCovidOPH['Quarter'] >= 2021.25) & (postCovidOPH['Quarter'] <= 2026.25)]
 postCovidOPH['Quarter'] = postCovidOPH['Quarter'].apply(numeric_to_quarter)
 
 fig = double_qoq(preCovidOPH, postCovidOPH, "", "legend", "Output per hour worked pre-COVID", "Output per hour worked post-COVID")
-fig.write_image("../out/figures-images/Figure 5 - OPH - LFS vs RTI - double.png", width=1200, height=800, scale=2)
-fig.write_html("../out/figures-html/2026-Q1-Figure-5.html")
-#fig.show()
+fig.write_image("../out/figures-images/Figure 2 - OPH - LFS vs RTI - double.png", width=1200, height=800, scale=2)
+# fig.write_html("../out/figures-html/2026-Q2-Figure-2.html", config={"responsive": True}, post_script=MOBILE_STACK_JS,)
+write_mobile_html(fig, "../out/figures-html/2026-Q2-Figure-2-2.html")
+# fig.show()
 
 
-# Figure 6 data:
+# Figure 5 data:
 # Data taken from https://www.ons.gov.uk/economy/grossdomesticproductgdp/datasets/uksecondestimateofgdpdatatables
 # Gross domestic product at market prices: Chained volume measure in A2 AGGREGATES sheet
 # Table 4: Percentage change, latest quarter on previous quarter
 
-# Figure 6
-UK_GDP = pd.read_excel('../src/New-release/Q1_GDP.xlsx')
+# Figure 5
+UK_GDP = pd.read_excel('../src/New-release/Q2_GDP.xlsx')
 fig = px.bar(UK_GDP, x='Quarter', y='GDP', color_discrete_sequence=[TPI_One])
 fig.update_traces(
     text=UK_GDP['GDP'].map(lambda x: f"{x:.1f}%"),
@@ -502,20 +581,20 @@ fig.update_traces(
     hovertemplate="<b>%{x} GDP growth</b>: %{y}%"
 )
 #fig.show()
-fig.write_image("../out/figures-images/Figure 6 - UK Quarterly GDP.png", width=1200, height=600, scale=2)
-fig.write_html("../out/figures-html/2026-Q1-Figure-6.html")
+fig.write_image("../out/figures-images/Figure 5 - UK Quarterly GDP.png", width=1200, height=600, scale=2)
+fig.write_html("../out/figures-html/2026-Q2-Figure-5.html")
 
-# Data from:
-# https://data-explorer.oecd.org/vis?df[ds]=DisseminateFinalDMZ&df[id]=DSD_NAMAIN1%40DF_QNA_EXPENDITURE_GROWTH_OECD&df[ag]=OECD.SDD.NAD&dq=Q..CAN%2BDEU%2BFRA%2BGBR%2BITA%2BJPN%2BUSA%2BOECD%2BG7%2BEA20.S1..B1GQ......G1.&pd=2024-Q1%2C&to[TIME_PERIOD]=false&ly[cl]=TIME_PERIOD&ly[rw]=REF_AREA&vw=tb
+# # Data from:
+# # https://data-explorer.oecd.org/vis?df[ds]=DisseminateFinalDMZ&df[id]=DSD_NAMAIN1%40DF_QNA_EXPENDITURE_GROWTH_OECD&df[ag]=OECD.SDD.NAD&dq=Q..CAN%2BDEU%2BFRA%2BGBR%2BITA%2BJPN%2BUSA%2BOECD%2BG7%2BEA20.S1..B1GQ......G1.&pd=2024-Q1%2C&to[TIME_PERIOD]=false&ly[cl]=TIME_PERIOD&ly[rw]=REF_AREA&vw=tb
 GDP_data = pd.read_csv('../src/New-release/OECD GDP.csv')
 
-# Figure 7
+# Figure 6
 GDP_data = GDP_data[['Reference area', 'TIME_PERIOD', 'OBS_VALUE']].rename(columns={'TIME_PERIOD': 'Quarter', 'Reference area': 'Country', 'OBS_VALUE': 'Growth'})
-GDP_data = GDP_data[GDP_data['Quarter'] == '2026-Q1']
+GDP_data = GDP_data[GDP_data['Quarter'] == '2026-Q2']
 GDP_data = GDP_data.sort_values(by="Growth", ascending=True).round(1)
 GDP_data["Sign"] = GDP_data["Growth"].apply(lambda x: "Negative" if x < 0 else "Positive")
 provisional_countries = ['Canada', 'Germany']
 fig = New_GDP(GDP_data, provisional_countries)
 #fig.show()
-fig.write_image("../out/figures-images/Figure 7 - Q1 G7 GDP.png", width=1200, height=800, scale=2)
-fig.write_html("../out/figures-html/2026-Q1-Figure-7.html")
+fig.write_image("../out/figures-images/Figure 6 - Q2 G7 GDP.png", width=1200, height=800, scale=2)
+fig.write_html("../out/figures-html/2026-Q2-Figure-6.html")
