@@ -43,6 +43,8 @@ def plot_latest_industry_growth_bar(
     df['Growth'] = df.groupby('Industry')[value_col].pct_change(shift_n) * 100
 
     # filter to latest quarter
+    print("testing testing")
+    print(df)
     df = df[df['Quarter'] <= quarter_fmt]
     latest = df['Quarter'].max()
     df = df[df['Quarter'] == latest].dropna(subset=['Growth'])
@@ -171,6 +173,7 @@ def generate(current_quarter):
     key_countries = [
         'Euro Zone', 'European Union', 'Germany', 'France', 'Italy', 'Spain', 'Netherlands', 
     ]
+    heatmap_countries = ['Germany', 'France', 'Italy', 'Spain', 'Netherlands']
     # 'Ireland',
 
     key_industries = [
@@ -207,7 +210,7 @@ def generate(current_quarter):
         'Total - all NACE activities'
     ]
 
-    GVA_Chained_URL = 'https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/namq_10_a10/1.0/*.*.*.*.*.*?c[freq]=Q&c[unit]=CLV_I20&c[s_adj]=SCA&c[nace_r2]=TOTAL,A,B-E,C,F,G-I,J,K,L,M_N,O-Q,R-U&c[na_item]=B1G&c[geo]=EU27_2020,EA,EA21,EA20,EA19,EA12,BE,BG,CZ,DK,DE,EE,IE,EL,ES,FR,HR,IT,CY,LV,LT,LU,HU,MT,NL,AT,PL,PT,RO,SI,SK,FI,SE,NO,CH,UK,BA,ME,MK,AL,RS,TR,XK&c[TIME_PERIOD]=2026-Q1,2025-Q4,2025-Q3,2025-Q2,2025-Q1,2024-Q4,2024-Q3,2024-Q2,2024-Q1,2023-Q4,2023-Q3,2023-Q2,2023-Q1,2022-Q4,2022-Q3,2022-Q2,2022-Q1,2021-Q4,2021-Q3,2021-Q2,2021-Q1,2020-Q4,2020-Q3,2020-Q2,2020-Q1&compress=false&format=csvdata&formatVersion=1.0&lang=en&labels=label_only'
+    GVA_Chained_URL = 'https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/namq_10_a10/1.0/*.*.*.*.*.*?c[freq]=Q&c[unit]=CLV_I20&c[s_adj]=SCA&c[nace_r2]=TOTAL,A,B-E,C,F,G-I,J,K,L,M_N,O-Q,R-U&c[na_item]=B1G&c[geo]=EU27_2020,EA,EA21,EA20,EA19,EA12,BE,BG,CZ,DK,DE,EE,IE,EL,ES,FR,HR,IT,CY,LV,LT,LU,HU,MT,NL,AT,PL,PT,RO,SI,SK,FI,SE,NO,CH,BA,ME,MK,AL,RS,TR,XK&c[TIME_PERIOD]=2026-Q2,2026-Q1,2025-Q4,2025-Q3,2025-Q2,2025-Q1,2024-Q4,2024-Q3,2024-Q2,2024-Q1,2023-Q4,2023-Q3,2023-Q2,2023-Q1,2022-Q4,2022-Q3,2022-Q2,2022-Q1,2021-Q4,2021-Q3,2021-Q2,2021-Q1,2020-Q4,2020-Q3,2020-Q2,2020-Q1&compress=false&format=csvdata&formatVersion=1.0&lang=en&labels=label_only'
 
     GVA_Chained = pd.read_csv(GVA_Chained_URL, usecols=['unit', 'nace_r2', 'geo', 'TIME_PERIOD', 'OBS_VALUE']).rename(columns={
             "nace_r2": "Industry",
@@ -221,9 +224,11 @@ def generate(current_quarter):
         'European Union - 27 countries (from 2020)': 'European Union'                                           
     })
 
-    print(GVA_Chained['Industry'].unique().tolist())
+    # print(GVA_Chained['Industry'].unique().tolist())
+    print("Search:")
+    print(GVA_Chained['Quarter'].max())
 
-    Hours_Jobs_URL = 'https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/namq_10_a10_e/1.0/*.*.*.*.*.*?c[freq]=Q&c[unit]=THS_HW,THS_JOB&c[nace_r2]=TOTAL,A,B-E,C,F,G-I,J,K,L,M_N,O-Q,R-U&c[s_adj]=SCA&c[na_item]=EMP_DC&c[geo]=EU27_2020,EA,EA21,EA20,EA19,EA12,BE,BG,CZ,DK,DE,EE,IE,EL,ES,FR,HR,IT,CY,LV,LT,LU,HU,MT,NL,AT,PL,PT,RO,SI,SK,FI,SE,IS,NO,CH,UK,ME,MK,RS&c[TIME_PERIOD]=2026-Q1,2025-Q4,2025-Q3,2025-Q2,2025-Q1,2024-Q4,2024-Q3,2024-Q2,2024-Q1,2023-Q4,2023-Q3,2023-Q2,2023-Q1,2022-Q4,2022-Q3,2022-Q2,2022-Q1,2021-Q4,2021-Q3,2021-Q2,2021-Q1,2020-Q4,2020-Q3,2020-Q2,2020-Q1&compress=false&format=csvdata&formatVersion=1.0&lang=en&labels=label_only'
+    Hours_Jobs_URL = 'https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/namq_10_a10_e/1.0/*.*.*.*.*.*?c[freq]=Q&c[unit]=THS_HW,THS_JOB&c[nace_r2]=TOTAL,A,B-E,C,F,G-I,J,K,L,M_N,O-Q,R-U&c[s_adj]=SCA&c[na_item]=EMP_DC&c[geo]=EU27_2020,EA,EA21,EA20,EA19,EA12,BE,BG,CZ,DK,DE,EE,IE,EL,ES,FR,HR,IT,CY,LV,LT,LU,HU,MT,NL,AT,PL,PT,RO,SI,SK,FI,SE,IS,NO,CH,ME,MK,RS&c[TIME_PERIOD]=2026-Q2,2026-Q1,2025-Q4,2025-Q3,2025-Q2,2025-Q1,2024-Q4,2024-Q3,2024-Q2,2024-Q1,2023-Q4,2023-Q3,2023-Q2,2023-Q1,2022-Q4,2022-Q3,2022-Q2,2022-Q1,2021-Q4,2021-Q3,2021-Q2,2021-Q1,2020-Q4,2020-Q3,2020-Q2,2020-Q1&compress=false&format=csvdata&formatVersion=1.0&lang=en&labels=label_only'
 
     Hours_Jobs = pd.read_csv(Hours_Jobs_URL, usecols=['unit', 'nace_r2', 'geo', 'TIME_PERIOD', 'OBS_VALUE']).rename(columns={
             "nace_r2": "Industry",
@@ -304,7 +309,7 @@ def generate(current_quarter):
     # industry_order = [Industries_Short[k] for k in Industries_Short if k in heatmap_data.columns or True]
 
     heatmap_data = (
-        GVA_per_Hour_idx[GVA_per_Hour_idx['Country'].isin(key_countries)]
+        GVA_per_Hour_idx[GVA_per_Hour_idx['Country'].isin(heatmap_countries)]
         .sort_values(['Country', 'Industry', 'Quarter'])
         .assign(QoQ=lambda df: df.groupby(['Country', 'Industry'])['GVA_per_Hour'].pct_change(1) * 100)
         .query('Quarter == @latest_quarter')
@@ -312,9 +317,9 @@ def generate(current_quarter):
         .pivot(index='Country', columns='Industry', values='QoQ')
     )
 
-    # Order columns by Industries_Short insertion order, order rows by key_countries
+    # Order columns by Industries_Short insertion order, order rows by heatmap_countries
     heatmap_data = heatmap_data.reindex(columns=Industries_Short)
-    heatmap_data = heatmap_data.reindex(index=key_countries[::-1])
+    heatmap_data = heatmap_data.reindex(index=heatmap_countries[::-1])
 
     colorscale = [
         [0.0, low_colour],
@@ -343,12 +348,12 @@ def generate(current_quarter):
             side='top',
         ),
         margin=dict(l=120, r=40, t=180, b=40),
-        height=500 + len(key_countries) * 20,
+        height=500 + len(heatmap_countries) * 20,
     )
 
     # fig.show()
-    fig.write_image(f"{path}/images/2026-Q1-Figure-1.png", width=1200, height=600, scale=2)
-    fig.write_html(f"{path}/html/2026-Q1-Figure-1.html")
+    fig.write_image(f"{path}/images/2026-Q2-Figure-1.png", width=1200, height=600, scale=2)
+    fig.write_html(f"{path}/html/2026-Q2-Figure-1.html")
 
     # fig = plot_eurozone_industry_growth(
     #     GVA_per_Hour_idx,
@@ -366,5 +371,5 @@ def generate(current_quarter):
         current_quarter=current_quarter,
         yoy=False
     )
-    fig.write_image(f"{path}/images/2026-Q1-Figure-3.png", width=1000, height=600, scale=2)
-    fig.write_html(f"{path}/html/2026-Q1-Figure-3.html")
+    fig.write_image(f"{path}/images/2026-Q2-Figure-3.png", width=1000, height=600, scale=2)
+    fig.write_html(f"{path}/html/2026-Q2-Figure-3.html")

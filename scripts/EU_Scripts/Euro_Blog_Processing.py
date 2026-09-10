@@ -50,7 +50,7 @@ sector_code_map = {
 
 
 def EU_GVA_Process(country_code_map, sector_code_map):
-    url = 'https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/namq_10_a10/1.0?format=csvdata&compress=false&,POPTRT&c[GEO]=EU27_2020,EA21,DK,DE,IE,ES,FR,IT,NL,PL,RO,FI,NO&c[UNIT]=CLV_I20&c[S_ADJ]=SCA&c[TIME_PERIOD]=ge:1997+le:2030'
+    url = 'https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/namq_10_a10/1.0?format=csvdata&compress=false&,POPTRT&c[GEO]=EU27_2020,EA21,DK,DE,IE,ES,FR,IT,NL,PL,BE,RO,FI,NO&c[UNIT]=CLV_I20&c[S_ADJ]=SCA&c[TIME_PERIOD]=ge:1997+le:2030'
     EU_GVA = pd.read_csv(url)
     # EU_GVA = pd.read_csv('../src/EU GVA with industries.csv')
     EU_GVA["TIME_PERIOD"] = EU_GVA["TIME_PERIOD"].str.replace("-", " ", regex=False)
@@ -82,7 +82,7 @@ def generate(current_quarter):
     # Dataset = EU_GVA_Process(country_code_map, sector_code_map)
 
     # Productivity (2020=100)
-    Prod_URL = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/namq_10_lp_ulc/1.0/*.*.*.*.*?c[freq]=Q&c[unit]=I20&c[s_adj]=SCA&c[na_item]=RLPR_PER,RLPR_HW&c[geo]=EU27_2020,EA21,DE,IE,ES,FR,IT,NL,PL&c[TIME_PERIOD]=2026-Q1,2025-Q4,2025-Q3,2025-Q2,2025-Q1,2024-Q4,2024-Q3,2024-Q2,2024-Q1,2023-Q4,2023-Q3,2023-Q2,2023-Q1,2022-Q4,2022-Q3,2022-Q2,2022-Q1,2021-Q4,2021-Q3,2021-Q2,2021-Q1,2020-Q4,2020-Q3,2020-Q2,2020-Q1,2019-Q4,2019-Q3,2019-Q2,2019-Q1,2018-Q4,2018-Q3,2018-Q2,2018-Q1&compress=false&format=csvdata&formatVersion=2.0&lang=en&labels=name"
+    Prod_URL = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/namq_10_lp_ulc/1.0/*.*.*.*.*?c[freq]=Q&c[unit]=I20&c[s_adj]=SCA&c[na_item]=RLPR_PER,RLPR_HW&c[geo]=EU27_2020,EA21,DE,IE,ES,FR,IT,NL,PL,BE&c[TIME_PERIOD]=2026-Q2,2026-Q1,2025-Q4,2025-Q3,2025-Q2,2025-Q1,2024-Q4,2024-Q3,2024-Q2,2024-Q1,2023-Q4,2023-Q3,2023-Q2,2023-Q1,2022-Q4,2022-Q3,2022-Q2,2022-Q1,2021-Q4,2021-Q3,2021-Q2,2021-Q1,2020-Q4,2020-Q3,2020-Q2,2020-Q1,2019-Q4,2019-Q3,2019-Q2,2019-Q1,2018-Q4,2018-Q3,2018-Q2,2018-Q1&compress=false&format=csvdata&formatVersion=2.0&lang=en&labels=name"
 
     Productivity = pd.read_csv(Prod_URL)
 
@@ -104,7 +104,7 @@ def generate(current_quarter):
     })
 
     # GVA (2020=100)
-    GVA_URL = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/namq_10_a10/1.0/*.*.*.*.*.*?c[freq]=Q&c[unit]=CLV_I20&c[s_adj]=SCA&c[nace_r2]=TOTAL&c[na_item]=B1G&c[geo]=EU27_2020,EA21,DE,IE,ES,FR,IT,NL,PL&c[TIME_PERIOD]=2026-Q1,2025-Q4,2025-Q3,2025-Q2,2025-Q1,2024-Q4,2024-Q3,2024-Q2,2024-Q1,2023-Q4,2023-Q3,2023-Q2,2023-Q1,2022-Q4,2022-Q3,2022-Q2,2022-Q1,2021-Q4,2021-Q3,2021-Q2,2021-Q1,2020-Q4,2020-Q3,2020-Q2,2020-Q1,2019-Q4,2019-Q3,2019-Q2,2019-Q1,2018-Q4,2018-Q3,2018-Q2,2018-Q1&compress=false&format=csvdata&formatVersion=2.0&lang=en&labels=name"
+    GVA_URL = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/namq_10_a10/1.0/*.*.*.*.*.*?c[freq]=Q&c[unit]=CLV_I20&c[s_adj]=SCA&c[nace_r2]=TOTAL&c[na_item]=B1G&c[geo]=EU27_2020,EA21,DE,IE,ES,FR,IT,NL,PL,BE&c[TIME_PERIOD]=2026-Q1,2025-Q4,2025-Q3,2025-Q2,2025-Q1,2024-Q4,2024-Q3,2024-Q2,2024-Q1,2023-Q4,2023-Q3,2023-Q2,2023-Q1,2022-Q4,2022-Q3,2022-Q2,2022-Q1,2021-Q4,2021-Q3,2021-Q2,2021-Q1,2020-Q4,2020-Q3,2020-Q2,2020-Q1,2019-Q4,2019-Q3,2019-Q2,2019-Q1,2018-Q4,2018-Q3,2018-Q2,2018-Q1&compress=false&format=csvdata&formatVersion=2.0&lang=en&labels=name"
 
     GVA = pd.read_csv(GVA_URL)
 
@@ -125,7 +125,7 @@ def generate(current_quarter):
     })
 
     # Persons employed (2015=100)
-    Persons_URL = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/namq_10_a10_e/1.0/*.*.*.*.*.*?c[freq]=Q&c[unit]=I15_PER&c[nace_r2]=TOTAL&c[s_adj]=SCA&c[na_item]=EMP_DC&c[geo]=EU27_2020,EA21,DE,IE,ES,FR,IT,NL,PL&c[TIME_PERIOD]=2026-Q1,2025-Q4,2025-Q3,2025-Q2,2025-Q1,2024-Q4,2024-Q3,2024-Q2,2024-Q1,2023-Q4,2023-Q3,2023-Q2,2023-Q1,2022-Q4,2022-Q3,2022-Q2,2022-Q1,2021-Q4,2021-Q3,2021-Q2,2021-Q1,2020-Q4,2020-Q3,2020-Q2,2020-Q1,2019-Q4,2019-Q3,2019-Q2,2019-Q1,2018-Q4,2018-Q3,2018-Q2,2018-Q1&compress=false&format=csvdata&formatVersion=2.0&lang=en&labels=name"
+    Persons_URL = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/namq_10_a10_e/1.0/*.*.*.*.*.*?c[freq]=Q&c[unit]=I15_PER&c[nace_r2]=TOTAL&c[s_adj]=SCA&c[na_item]=EMP_DC&c[geo]=EU27_2020,EA21,DE,IE,ES,FR,IT,NL,PL,BE&c[TIME_PERIOD]=2026-Q1,2025-Q4,2025-Q3,2025-Q2,2025-Q1,2024-Q4,2024-Q3,2024-Q2,2024-Q1,2023-Q4,2023-Q3,2023-Q2,2023-Q1,2022-Q4,2022-Q3,2022-Q2,2022-Q1,2021-Q4,2021-Q3,2021-Q2,2021-Q1,2020-Q4,2020-Q3,2020-Q2,2020-Q1,2019-Q4,2019-Q3,2019-Q2,2019-Q1,2018-Q4,2018-Q3,2018-Q2,2018-Q1&compress=false&format=csvdata&formatVersion=2.0&lang=en&labels=name"
 
     Persons = pd.read_csv(Persons_URL)
 
@@ -146,7 +146,7 @@ def generate(current_quarter):
     })
 
     # Hours worked (2015=100)
-    Hours_URL = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/namq_10_a10_e/1.0/*.*.*.*.*.*?c[freq]=Q&c[unit]=I15_HW&c[nace_r2]=TOTAL&c[s_adj]=SCA&c[na_item]=EMP_DC&c[geo]=EU27_2020,EA21,DE,IE,ES,FR,IT,NL,PL&c[TIME_PERIOD]=2026-Q1,2025-Q4,2025-Q3,2025-Q2,2025-Q1,2024-Q4,2024-Q3,2024-Q2,2024-Q1,2023-Q4,2023-Q3,2023-Q2,2023-Q1,2022-Q4,2022-Q3,2022-Q2,2022-Q1,2021-Q4,2021-Q3,2021-Q2,2021-Q1,2020-Q4,2020-Q3,2020-Q2,2020-Q1,2019-Q4,2019-Q3,2019-Q2,2019-Q1,2018-Q4,2018-Q3,2018-Q2,2018-Q1&compress=false&format=csvdata&formatVersion=2.0&lang=en&labels=name"
+    Hours_URL = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/namq_10_a10_e/1.0/*.*.*.*.*.*?c[freq]=Q&c[unit]=I15_HW&c[nace_r2]=TOTAL&c[s_adj]=SCA&c[na_item]=EMP_DC&c[geo]=EU27_2020,EA21,DE,IE,ES,FR,IT,NL,PL,BE&c[TIME_PERIOD]=2026-Q2,2026-Q1,2025-Q4,2025-Q3,2025-Q2,2025-Q1,2024-Q4,2024-Q3,2024-Q2,2024-Q1,2023-Q4,2023-Q3,2023-Q2,2023-Q1,2022-Q4,2022-Q3,2022-Q2,2022-Q1,2021-Q4,2021-Q3,2021-Q2,2021-Q1,2020-Q4,2020-Q3,2020-Q2,2020-Q1,2019-Q4,2019-Q3,2019-Q2,2019-Q1,2018-Q4,2018-Q3,2018-Q2,2018-Q1&compress=false&format=csvdata&formatVersion=2.0&lang=en&labels=name"
 
     Hours = pd.read_csv(Hours_URL)
 
