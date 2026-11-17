@@ -29,25 +29,21 @@ def numeric_to_quarter(n): # Converts 1997.5 → "1997 Q3"
 
 def rebase_chain_linked_quarters(df, new_base_year):
     df = df.copy()
-    
-    # Extract year from Quarter (e.g., 1997.25 -> 1997)
-    df["Year"] = df["Quarter"].astype(int)
+    year = df["Quarter"].astype(int)
+    keys = [df["Country"], df["Industry"], df["Variable"]]
 
-    def rebase_group(group):
-        # Get the mean of the base year for this group
-        base_year_values = group[group["Year"] == new_base_year]["Value"]
-        if base_year_values.empty or base_year_values.mean() == 0:
-            return group  # Skip group if base year is missing or zero
-        base_mean = base_year_values.mean()
-        group["Value"] = (group["Value"] / base_mean) * 100
-        return group
+    # Mean of the base year's values within each Country/Industry/Variable group,
+    # broadcast back onto every row of that group
+    base_mean = (
+        df["Value"]
+        .where(year == new_base_year)
+        .groupby(keys, dropna=False)
+        .transform("mean")
+    )
 
-    # Apply rebase per group
-    df = df.groupby(["Country", "Industry", "Variable"], group_keys=False).apply(rebase_group)
-
-    # Drop temporary year column
-    df = df.drop(columns="Year")
-
+    # Skip groups with no base-year data or a zero base (same behaviour as before)
+    valid = base_mean.notna() & (base_mean != 0)
+    df.loc[valid, "Value"] = df.loc[valid, "Value"] / base_mean[valid] * 100
     return df
 
 def rebase_chain_linked_years(df, new_base_year):

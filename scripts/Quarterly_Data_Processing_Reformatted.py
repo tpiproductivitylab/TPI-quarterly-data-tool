@@ -1,5 +1,8 @@
 import pandas as pd
 import numpy as np
+import certifi
+import ssl
+from urllib.request import urlopen
 
 country_code_map = {
     "EU27_2020": "European Union",
@@ -62,9 +65,14 @@ def quarter_to_numeric(q):
         year, qtr = q.split(" ")
     return int(year) + (int(qtr[1]) - 1) / 4  # Converts "1997 Q3" → 1997.5
 
+def read_csv_from_url(url):
+    ssl_context = ssl.create_default_context(cafile=certifi.where())
+    with urlopen(url, context=ssl_context) as response:
+        return pd.read_csv(response)
+
 def EU_GVA_Process(country_code_map, sector_code_map):
     url = 'https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/namq_10_a10/1.0?format=csvdata&compress=false&,POPTRT&c[GEO]=EU27_2020,EA,DK,DE,IE,ES,FR,IT,NL,PL,RO,FI,NO&c[UNIT]=CLV_I20&c[S_ADJ]=SCA&c[TIME_PERIOD]=ge:1997+le:2030'
-    EU_GVA = pd.read_csv(url)
+    EU_GVA = read_csv_from_url(url)
     # EU_GVA = pd.read_csv('../src/EU GVA with industries.csv')
     EU_GVA["TIME_PERIOD"] = EU_GVA["TIME_PERIOD"].str.replace("-", " ", regex=False)
     EU_GVA = EU_GVA[["TIME_PERIOD", "geo", "nace_r2", "OBS_VALUE"]]
@@ -122,19 +130,19 @@ def SIC_Code_Combine(dataset, letters):
 # https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/labourproductivity/datasets/outputperhourworkedbydivisionuk
 UK_GVA_Division = pd.read_excel('../src/prodbydivoph.xlsx', sheet_name='Table_23', header=4)
 # Data from figure 1 and 3 from https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/labourproductivity/articles/ukproductivityintroduction/julytoseptember2025andapriltojune2025
-Flash_Estimate_OPH = pd.read_csv('../src/OPH Q1 Flash Estimate.csv', skiprows=7, usecols=[0,3], names=["Quarter", "Output Per Hour"])
-Flash_Estimate_OPW = pd.read_csv('../src/OPW Q1 Flash Estimate.csv', skiprows=7, usecols=[0,3], names=["Quarter", "Output Per Worker"])
+Flash_Estimate_OPH = pd.read_csv('../src/OPH Flash Estimate.csv', skiprows=7, usecols=[0,2], names=["Quarter", "Output Per Hour"])
+Flash_Estimate_OPW = pd.read_csv('../src/OPW Flash Estimate.csv', skiprows=7, usecols=[0,2], names=["Quarter", "Output Per Worker"])
 
 # US
 # https://www.bls.gov/productivity/
 # 'Major sectors labor productivity' in the bottom right in most requested tables
 # When updating data remember to update columns used (usecols) because new quarter column will be added
-US_data = pd.read_excel('../src/labor-productivity-major-sectors.xlsx', sheet_name='Quarterly', usecols='A,C,D, GW:LI', skiprows=2)
+US_data = pd.read_excel('../src/labor-productivity-major-sectors.xlsx', sheet_name='Quarterly', usecols='A,C,D, GW:LJ', skiprows=2)
 
 # European data API call
 url = 'https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/namq_10_lp_ulc/1.0?format=csvdata&compress=false&,POPTRT&c[GEO]=EU27_2020,EA,DK,DE,IE,ES,FR,IT,NL,PL,RO,FI,NO&c[UNIT]=I20&c[S_ADJ]=SCA&c[TIME_PERIOD]=ge:1997+le:2030'
 #url = 'https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/namq_10_lp_ulc/1.0?format=csvdata&compress=false&,POPTRT&c[GEO]=EU27_2020&c[UNIT]=I20&c[S_ADJ]=SCA&c[TIME_PERIOD]=ge:1997+le:2030'
-EU_OPH_OPW = pd.read_csv(url)
+EU_OPH_OPW = read_csv_from_url(url)
 EU_OPH_OPW = EU_OPH_OPW.rename(columns={"TIME_PERIOD": "Quarter", "na_item": "Variable", "geo": "Country", "OBS_VALUE": "Value"})
 EU_OPH_OPW["Quarter"] = EU_OPH_OPW["Quarter"].str.replace("-", " ", regex=False)
 EU_OPH_OPW["Country"] = EU_OPH_OPW["Country"].replace(country_code_map)
